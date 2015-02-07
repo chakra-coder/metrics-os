@@ -1,0 +1,16 @@
+## IDE settings
+# Eclipse:
+.settings
+.project
+.classpath
+
+# Idea:
+.idea
+*.iml
+
+
+## Build directories
+bin
+dist
+build
+target
