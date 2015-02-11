@@ -27,13 +27,8 @@ public class OperatingSystemInfo extends CachedGauge<String> {
                                 long timeout,
                                 TimeUnit timeoutUnit,
                                 Clock timeoutClock ) {
-        super( timeoutClock, timeout, timeoutUnit );
-
-        if ( osMxBean == null || timeoutClock == null ) {
-            throw null;
-        }
-
-        this.osMxBean = osMxBean;
+        super( Objects.requireNonNull( timeoutClock ), timeout, Objects.requireNonNull( timeoutUnit ) );
+        this.osMxBean = Objects.requireNonNull( osMxBean );
     }
 
     @Override

@@ -18,11 +18,7 @@ public class OperatingSystemLoad implements Gauge<Double> {
     }
 
     public OperatingSystemLoad( OperatingSystemMXBean osMxBean ) {
-        if ( osMxBean == null ) {
-            throw null;
-        }
-
-        this.osMxBean = osMxBean;
+        this.osMxBean = Objects.requireNonNull( osMxBean );
     }
 
     @Override

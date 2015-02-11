@@ -4,6 +4,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 
+import java.lang.management.ManagementFactory;
 import java.lang.management.OperatingSystemMXBean;
 
 import org.assertj.core.data.Offset;
@@ -17,13 +18,22 @@ public class OperatingSystemLoadTest {
     @Before
     public void setUp() throws Exception {
         this.os = mock( OperatingSystemMXBean.class );
-
         this.gauge = new OperatingSystemLoad( os );
     }
 
     @Test
     public void default_constructor_bootstraps_the_class_without_exceptions() {
         new OperatingSystemLoad().getValue();
+    }
+
+    @Test
+    public void getValue_returns_some_value_with_no_exceptions_on_the_real_thing() {
+        this.gauge = new OperatingSystemLoad( ManagementFactory.getOperatingSystemMXBean() );
+
+        // NOTE: The actual value might be Double.NaN on Windows and this test won't fail.
+        // There is no practical workaround to get the system load average on Windows from inside of the
+        // JVM/management extensions, so we can't do much about it.
+        assertThat( gauge.getValue() ).isNotNegative();
     }
 
     @Test
@@ -69,5 +79,10 @@ public class OperatingSystemLoadTest {
 
         doReturn( Double.NaN ).when( os ).getSystemLoadAverage();
         assertThat( gauge.getValue() ).isNaN();
+    }
+
+    @Test( expected = NullPointerException.class )
+    public void constructor_throws_NullPointerException_when_RuntimeMXBean_is_null() {
+        new OperatingSystemLoad( null );
     }
 }

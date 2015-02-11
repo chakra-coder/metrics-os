@@ -4,6 +4,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 
+import java.lang.management.ManagementFactory;
 import java.lang.management.RuntimeMXBean;
 
 import org.junit.Before;
@@ -23,8 +24,14 @@ public class ProcessUptimeTest {
     public void default_constructor_bootstraps_the_class_without_exceptions_and_returns_positive_value() {
         final long value = new ProcessUptime().getValue();
 
-        // What would it mean for the uptime to be negative anyway?
         assertThat( value ).isPositive();
+    }
+
+    @Test
+    public void getValue_returns_some_value_with_no_exceptions_on_the_real_thing() {
+        this.gauge = new ProcessUptime( ManagementFactory.getRuntimeMXBean() );
+
+        assertThat( gauge.getValue() ).isPositive();
     }
 
     @Test
@@ -32,5 +39,10 @@ public class ProcessUptimeTest {
         doReturn( 123L ).when( runtime ).getUptime();
 
         assertThat( gauge.getValue() ).isEqualTo( 123L );
+    }
+
+    @Test(expected = NullPointerException.class)
+    public void constructor_throws_NullPointerException_when_OperatingSystemMXBean_is_null() {
+        new ProcessUptime( null );
     }
 }

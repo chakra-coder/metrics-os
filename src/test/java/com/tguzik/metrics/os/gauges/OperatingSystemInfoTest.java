@@ -3,8 +3,11 @@ package com.tguzik.metrics.os.gauges;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.*;
 
+import java.lang.management.ManagementFactory;
 import java.lang.management.OperatingSystemMXBean;
+import java.util.concurrent.TimeUnit;
 
+import com.codahale.metrics.Clock;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -21,6 +24,18 @@ public class OperatingSystemInfoTest {
         doReturn( 42 ).when( os ).getAvailableProcessors();
 
         this.gauge = new OperatingSystemInfo( os );
+    }
+
+    @Test
+    public void default_constructor_fully_bootstraps_the_gauge() {
+        new OperatingSystemInfo().getValue();
+    }
+
+    @Test
+    public void getValue_returns_some_value_with_no_exceptions_on_the_real_thing() {
+        this.gauge = new OperatingSystemInfo( ManagementFactory.getOperatingSystemMXBean() );
+
+        assertThat( gauge.getValue() ).isNotEmpty();
     }
 
     @Test
@@ -41,11 +56,18 @@ public class OperatingSystemInfoTest {
         verifyNoMoreInteractions( os );
     }
 
-    @Test
-    public void default_constructor_fully_bootstraps_the_gauge() {
-        this.gauge = new OperatingSystemInfo();
-        final String actual = gauge.getValue();
+    @Test( expected = NullPointerException.class )
+    public void constructor_throws_NullPointerException_when_OperatingSystemMXBean_is_null() {
+        new OperatingSystemInfo( null );
+    }
 
-        assertThat( actual ).isNotEmpty();
+    @Test( expected = NullPointerException.class )
+    public void constructor_throws_NullPointerException_when_TimeUnit_is_null() {
+        new OperatingSystemInfo( mock( OperatingSystemMXBean.class ), 123, null, mock( Clock.class ) );
+    }
+
+    @Test( expected = NullPointerException.class )
+    public void constructor_throws_NullPointerException_when_Clock_is_null() {
+        new OperatingSystemInfo( mock( OperatingSystemMXBean.class ), 123, TimeUnit.HOURS, null );
     }
 }

@@ -11,23 +11,18 @@ import com.codahale.metrics.Gauge;
  */
 @ParametersAreNonnullByDefault
 public class ProcessUptime implements Gauge<Long> {
-    private final RuntimeMXBean runtime;
+    private final RuntimeMXBean runtimeMxBean;
 
     public ProcessUptime() {
         this( ManagementFactory.getRuntimeMXBean() );
     }
 
-    public ProcessUptime( RuntimeMXBean runtime ) {
-        if ( runtime == null ) {
-            // I'd look nicer if we had JDK 8 or Guava.
-            throw null;
-        }
-
-        this.runtime = runtime;
+    public ProcessUptime( RuntimeMXBean runtimeMxBean ) {
+        this.runtimeMxBean = Objects.requireNonNull( runtimeMxBean );
     }
 
     @Override
     public Long getValue() {
-        return runtime.getUptime();
+        return runtimeMxBean.getUptime();
     }
 }
